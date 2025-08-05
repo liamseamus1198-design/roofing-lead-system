@@ -1,0 +1,31 @@
+{
+  "name": "roofing-lead-system",
+  "version": "1.0.0",
+  "description": "Roofing lead generation system for storm damage inspections",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "npm run build-css",
+    "build-css": "tailwindcss -i ./src/input.css -o ./public/styles.css --watch"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "nodemailer": "^6.9.7",
+    "sqlite3": "^5.1.6",
+    "bcryptjs": "^2.4.3",
+    "express-session": "^1.17.3",
+    "connect-sqlite3": "^0.9.13",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "tailwindcss": "^3.3.5"
+  },
+  "keywords": ["roofing", "leads", "storm-damage", "inspections"],
+  "author": "Your Name",
+  "license": "MIT"
+} 
