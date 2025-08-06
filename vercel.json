@@ -13,6 +13,13 @@
       "use": "@vercel/static"
     }
   ],
+  "redirects": [
+    {
+      "source": "https://roofing-lead-system-o8r4gx934-liamseamus1198-designs-projects.vercel.app",
+      "destination": "https://thestormprofessional.com",
+      "permanent": true
+    }
+  ],
   "routes": [
     {
       "src": "/",
