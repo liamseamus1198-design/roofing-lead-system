@@ -1,0 +1,11 @@
+#!/bin/bash
+echo "🚀 Quick Deploy to Fix Authentication Issues"
+echo "1. Go to https://vercel.com/new"
+echo "2. Import your GitHub repo: https://github.com/liamseamus1198-design/roofing-lead-system.git"
+echo "3. Set environment variables:"
+echo "   - EMAIL_USER: your-gmail@gmail.com"
+echo "   - EMAIL_PASS: your-app-password"
+echo "   - ADMIN_EMAIL: your-admin-email@gmail.com"
+echo "   - SESSION_SECRET: any-random-string"
+echo "4. Deploy WITHOUT any protection settings"
+echo "5. Your new URL will be provided"

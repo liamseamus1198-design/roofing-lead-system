@@ -235,7 +235,42 @@ document.addEventListener('DOMContentLoaded', function() {
                                              style="min-height: 45vh; object-fit: contain; transform: scale(1.1);">
                                     </div>
                                 </div>
-                                ` : `
+                                ` : type === 'coverage' ? `
+            <!-- 2x2 Grid of All Storm Maps -->
+            <div class="grid grid-cols-2 gap-4 p-4 h-full">
+                <!-- Storm Map 1: Vero Lake Estates -->
+                <div class="bg-white rounded-lg p-3 shadow-xl border-2 border-gray-200">
+                    <h5 class="text-lg font-bold text-gray-800 mb-2 text-center">Hail Damage Map of Vero Lake Estates ` : ` West Corridor</h5>
+                    <img src="/images/storm-maps/storm-map-1.jpg" alt="Vero Lake Estates Storm Map" 
+                         class="w-full h-full object-scale-down rounded" 
+                         style="min-height: 45vh; object-fit: contain; transform: scale(1.1);">
+                </div>
+                
+                <!-- Storm Map 2: Melbourne ` : ` Satellite Beach -->
+                <div class="bg-white rounded-lg p-3 shadow-xl border-2 border-gray-200">
+                    <h5 class="text-lg font-bold text-gray-800 mb-2 text-center">Hail Detection of Melbourne and Satellite Beach</h5>
+                    <img src="/images/storm-maps/storm-map-2.jpg" alt="Melbourne Storm Map" 
+                         class="w-full h-full object-scale-down rounded" 
+                         style="min-height: 45vh; object-fit: contain; transform: scale(1.1);">
+                </div>
+                
+                <!-- Storm Map 3: Palm Bay -->
+                <div class="bg-white rounded-lg p-3 shadow-xl border-2 border-gray-200">
+                    <h5 class="text-lg font-bold text-gray-800 mb-2 text-center">Hail Detection of Palm Bay</h5>
+                    <img src="/images/storm-maps/storm-map-3.jpg" alt="Palm Bay Storm Map" 
+                         class="w-full h-full object-scale-down rounded" 
+                         style="min-height: 45vh; object-fit: contain; transform: scale(1.1);">
+                </div>
+                
+                <!-- Storm Map 4: Overall Coverage -->
+                <div class="bg-white rounded-lg p-3 shadow-xl border-2 border-gray-200">
+                    <h5 class="text-lg font-bold text-gray-800 mb-2 text-center">Storm/Hail Damage Coverage of Counties and Cities</h5>
+                    <img src="/images/storm-maps/storm-map-4.jpg" alt="Overall Coverage Map" 
+                         class="w-full h-full object-scale-down rounded" 
+                         style="min-height: 45vh; object-fit: contain; transform: scale(1.1);">
+                </div>
+            </div>
+            ` : `
                                 <!-- Single Storm Map Image -->
                                 <img src="${map.image}" alt="${map.title}" class="w-full h-full object-scale-down rounded-lg shadow-2xl" 
                                      style="min-height: 100vh; object-fit: contain; max-width: 100%; transform: scale(1.3); margin: -10%;"
