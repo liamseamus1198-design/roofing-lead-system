@@ -1,0 +1,60 @@
+[build]
+  # Build command for Netlify
+  command = "npm install"
+  
+  # Publish directory (static files)
+  publish = "public"
+  
+  # Node.js version
+  [build.environment]
+    NODE_VERSION = "18"
+
+# Functions for serverless backend
+[functions]
+  directory = "functions"
+
+# Redirects for SPA routing
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+
+# Headers for security and performance
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Environment variables (set these in Netlify dashboard)
+[build.environment]
+  EMAIL_USER = "your-gmail@gmail.com"
+  EMAIL_PASS = "your-gmail-app-password"
+  ADMIN_EMAIL = "your-admin@gmail.com"
+  SESSION_SECRET = "496839bb01ccc96baefd75244a400250f439cbb7265ecb71dd240d507e4ef463"
+
+# Form handling for lead capture
+[[redirects]]
+  from = "/api/leads"
+  to = "/.netlify/functions/leads"
+  status = 200
+  method = "POST"
+
+# Admin API endpoints
+[[redirects]]
+  from = "/api/admin/*"
+  to = "/.netlify/functions/admin/:splat"
+  status = 200
+
+# Health check endpoint
+[[redirects]]
+  from = "/health"
+  to = "/.netlify/functions/health"
+  status = 200 

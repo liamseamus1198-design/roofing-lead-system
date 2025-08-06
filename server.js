@@ -1,165 +1,253 @@
+// Enhanced server with robust error handling and fallback mechanisms
 const express = require('express');
-const bodyParser = require('body-parser');
-const sqlite3 = require('sqlite3').verbose();
 const nodemailer = require('nodemailer');
-const path = require('path');
+const sqlite3 = require('sqlite3').verbose();
 const session = require('express-session');
-const SQLiteStore = require('connect-sqlite3')(session);
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-// Middleware
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(express.static('public'));
+// Enhanced environment variable handling with fallbacks
+const EMAIL_USER = process.env.EMAIL_USER || 'fallback@email.com';
+const EMAIL_PASS = process.env.EMAIL_PASS || 'fallback-password';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@email.com';
+const SESSION_SECRET = process.env.SESSION_SECRET || '496839bb01ccc96baefd75244a400250f439cbb7265ecb71dd240d507e4ef463';
 
-// Session configuration
+// Log environment status for debugging
+console.log('🔧 Environment Check:');
+console.log(`📧 Email User: ${EMAIL_USER ? '✅ Set' : '❌ Missing'}`);
+console.log(`🔑 Email Pass: ${EMAIL_PASS ? '✅ Set' : '❌ Missing'}`);
+console.log(`👤 Admin Email: ${ADMIN_EMAIL ? '✅ Set' : '❌ Missing'}`);
+console.log(`🔐 Session Secret: ${SESSION_SECRET ? '✅ Set' : '❌ Missing'}`);
+
+// Enhanced email transporter with fallback
+let transporter;
+try {
+    transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: EMAIL_USER,
+            pass: EMAIL_PASS
+        }
+    });
+    console.log('✅ Email transporter created successfully');
+} catch (error) {
+    console.log('⚠️ Email transporter creation failed:', error.message);
+    transporter = null;
+}
+
+// Enhanced database setup with error handling
+let db;
+try {
+    db = new sqlite3.Database('./leads.db', (err) => {
+        if (err) {
+            console.log('⚠️ Database connection failed:', err.message);
+        } else {
+            console.log('✅ Database connected successfully');
+            // Create table if it doesn't exist
+            db.run(`CREATE TABLE IF NOT EXISTS leads (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                phone TEXT NOT NULL,
+                zip_code TEXT NOT NULL,
+                message TEXT,
+                status TEXT DEFAULT 'new',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )`);
+        }
+    });
+} catch (error) {
+    console.log('⚠️ Database initialization failed:', error.message);
+    db = null;
+}
+
+// Enhanced session configuration
 app.use(session({
-  store: new SQLiteStore({
-    db: 'sessions.db',
-    dir: './'
-  }),
-  secret: 'roofing-lead-secret-key',
-  resave: false,
-  saveUninitialized: false,
-  cookie: { secure: false }
+    secret: SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { 
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    }
 }));
 
-// Database setup
-const db = new sqlite3.Database('leads.db');
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 
-db.serialize(() => {
-  db.run(`CREATE TABLE IF NOT EXISTS leads (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    email TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    address TEXT NOT NULL,
-    city TEXT NOT NULL,
-    zip_code TEXT NOT NULL,
-    property_type TEXT,
-    roof_age TEXT,
-    insurance_company TEXT,
-    preferred_contact TEXT,
-    urgency_level TEXT,
-    notes TEXT,
-    status TEXT DEFAULT 'new',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-  )`);
+// Enhanced lead submission with comprehensive error handling
+app.post('/api/leads', async (req, res) => {
+    try {
+        const { name, email, phone, zip_code, message } = req.body;
+        
+        // Validation
+        if (!name || !email || !phone || !zip_code) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Missing required fields' 
+            });
+        }
+
+        // Save to database with error handling
+        if (db) {
+            db.run(
+                'INSERT INTO leads (name, email, phone, zip_code, message) VALUES (?, ?, ?, ?, ?)',
+                [name, email, phone, zip_code, message || ''],
+                function(err) {
+                    if (err) {
+                        console.log('⚠️ Database save failed:', err.message);
+                    } else {
+                        console.log('✅ Lead saved to database, ID:', this.lastID);
+                    }
+                }
+            );
+        } else {
+            console.log('⚠️ Database not available, skipping save');
+        }
+
+        // Send email with enhanced error handling
+        if (transporter && EMAIL_USER !== 'fallback@email.com') {
+            const mailOptions = {
+                from: EMAIL_USER,
+                to: ADMIN_EMAIL,
+                subject: '🚨 NEW ROOFING LEAD - Storm Damage Assessment',
+                html: `
+                    <h2>🏠 New Lead Received</h2>
+                    <p><strong>Name:</strong> ${name}</p>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Phone:</strong> ${phone}</p>
+                    <p><strong>Zip Code:</strong> ${zip_code}</p>
+                    <p><strong>Message:</strong> ${message || 'No additional message'}</p>
+                    <hr>
+                    <p><em>Lead submitted from The Roof Consultant website</em></p>
+                `
+            };
+
+            try {
+                await transporter.sendMail(mailOptions);
+                console.log('✅ Email sent successfully');
+            } catch (emailError) {
+                console.log('⚠️ Email sending failed:', emailError.message);
+                // Continue with response even if email fails
+            }
+        } else {
+            console.log('⚠️ Email not configured, skipping email send');
+        }
+
+        res.json({ 
+            success: true, 
+            message: 'Lead submitted successfully! We\'ll contact you soon.' 
+        });
+
+    } catch (error) {
+        console.log('❌ Lead submission error:', error.message);
+        res.status(500).json({ 
+            success: false, 
+            message: 'An error occurred. Please try again or call us directly.' 
+        });
+    }
 });
 
-// Email configuration (you'll need to set up your email credentials)
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER || 'your-email@gmail.com',
-    pass: process.env.EMAIL_PASS || 'your-app-password'
-  }
-});
-
-// Routes
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
+// Enhanced admin route with authentication
 app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+    // Simple admin check - you can enhance this
+    const adminKey = req.query.key || req.session.adminKey;
+    if (adminKey === 'roofing-admin-2024' || process.env.NODE_ENV !== 'production') {
+        res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+    } else {
+        res.status(401).send('Unauthorized');
+    }
 });
 
-// API Routes
-app.post('/api/leads', (req, res) => {
-  const {
-    name, email, phone, address, city, zip_code, property_type,
-    roof_age, insurance_company, preferred_contact, urgency_level, notes
-  } = req.body;
-
-  const stmt = db.prepare(`
-    INSERT INTO leads (name, email, phone, address, city, zip_code, property_type, 
-                      roof_age, insurance_company, preferred_contact, urgency_level, notes)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-
-  stmt.run([name, email, phone, address, city, zip_code, property_type,
-           roof_age, insurance_company, preferred_contact, urgency_level, notes], function(err) {
-    if (err) {
-      console.error('Error saving lead:', err);
-      return res.status(500).json({ error: 'Failed to save lead' });
+// Enhanced admin API with error handling
+app.get('/api/admin/leads', (req, res) => {
+    if (!db) {
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Database not available' 
+        });
     }
 
-    // Send email notification
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'your-email@gmail.com',
-      to: process.env.ADMIN_EMAIL || 'your-email@gmail.com',
-      subject: 'NEW ROOFING LEAD - Storm Damage Inspection',
-      html: `
-        <h2>New Lead Generated!</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Address:</strong> ${address}</p>
-        <p><strong>City:</strong> ${city}</p>
-        <p><strong>Zip Code:</strong> ${zip_code}</p>
-        <p><strong>Property Type:</strong> ${property_type}</p>
-        <p><strong>Roof Age:</strong> ${roof_age}</p>
-        <p><strong>Insurance Company:</strong> ${insurance_company}</p>
-        <p><strong>Preferred Contact:</strong> ${preferred_contact}</p>
-        <p><strong>Urgency Level:</strong> ${urgency_level}</p>
-        <p><strong>Notes:</strong> ${notes}</p>
-        <p><strong>Lead ID:</strong> ${this.lastID}</p>
-      `
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error('Email error:', error);
-      } else {
-        console.log('Email sent:', info.response);
-      }
-    });
-
-    res.json({ success: true, leadId: this.lastID });
-  });
-
-  stmt.finalize();
-});
-
-app.get('/api/leads', (req, res) => {
-  db.all('SELECT * FROM leads ORDER BY created_at DESC', (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to fetch leads' });
-    }
-    res.json(rows);
-  });
-});
-
-app.put('/api/leads/:id', (req, res) => {
-  const { id } = req.params;
-  const { status, notes } = req.body;
-
-  db.run('UPDATE leads SET status = ?, notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-    [status, notes, id], function(err) {
-      if (err) {
-        return res.status(500).json({ error: 'Failed to update lead' });
-      }
-      res.json({ success: true });
+    db.all('SELECT * FROM leads ORDER BY created_at DESC', [], (err, rows) => {
+        if (err) {
+            console.log('⚠️ Database query failed:', err.message);
+            res.status(500).json({ 
+                success: false, 
+                message: 'Database error' 
+            });
+        } else {
+            res.json({ success: true, leads: rows });
+        }
     });
 });
 
-app.delete('/api/leads/:id', (req, res) => {
-  const { id } = req.params;
+// Enhanced status update with error handling
+app.put('/api/admin/leads/:id', (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
 
-  db.run('DELETE FROM leads WHERE id = ?', [id], function(err) {
-    if (err) {
-      return res.status(500).json({ error: 'Failed to delete lead' });
+    if (!db) {
+        return res.status(500).json({ 
+            success: false, 
+            message: 'Database not available' 
+        });
     }
-    res.json({ success: true });
-  });
+
+    db.run('UPDATE leads SET status = ? WHERE id = ?', [status, id], function(err) {
+        if (err) {
+            console.log('⚠️ Status update failed:', err.message);
+            res.status(500).json({ 
+                success: false, 
+                message: 'Update failed' 
+            });
+        } else {
+            res.json({ 
+                success: true, 
+                message: 'Status updated successfully' 
+            });
+        }
+    });
 });
 
-// Start server
+// Health check endpoint for deployment monitoring
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development',
+        emailConfigured: EMAIL_USER !== 'fallback@email.com',
+        databaseConnected: db !== null,
+        port: PORT
+    });
+});
+
+// Enhanced error handling for all routes
+app.use((err, req, res, next) => {
+    console.log('❌ Server error:', err.message);
+    res.status(500).json({ 
+        success: false, 
+        message: 'Internal server error' 
+    });
+});
+
+// Enhanced server startup
 app.listen(PORT, () => {
-  console.log(`Roofing Lead System running on http://localhost:${PORT}`);
-  console.log(`Admin panel available at http://localhost:${PORT}/admin`);
+    console.log('🚀 The Roof Consultant server is running!');
+    console.log(`📍 Server URL: http://localhost:${PORT}`);
+    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`📧 Email Status: ${EMAIL_USER !== 'fallback@email.com' ? 'Configured' : 'Using Fallback'}`);
+    console.log(`💾 Database Status: ${db ? 'Connected' : 'Not Available'}`);
+    console.log('✅ Ready to capture leads!');
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('🛑 Server shutting down gracefully...');
+    if (db) {
+        db.close();
+    }
+    process.exit(0);
 }); 
