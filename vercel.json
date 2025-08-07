@@ -4,11 +4,35 @@
     {
       "src": "server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/",
+      "src": "/styles.css",
+      "dest": "/public/styles.css"
+    },
+    {
+      "src": "/script.js",
+      "dest": "/public/script.js"
+    },
+    {
+      "src": "/images/(.*)",
+      "dest": "/public/images/$1"
+    },
+    {
+      "src": "/admin.html",
+      "dest": "/public/admin.html"
+    },
+    {
+      "src": "/storm-coverage.html",
+      "dest": "/public/storm-coverage.html"
+    },
+    {
+      "src": "/api/(.*)",
       "dest": "/server.js"
     },
     {
@@ -16,11 +40,7 @@
       "dest": "/server.js"
     },
     {
-      "src": "/storm-coverage",
-      "dest": "/server.js"
-    },
-    {
-      "src": "/api/(.*)",
+      "src": "/",
       "dest": "/server.js"
     },
     {
