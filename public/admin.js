@@ -22,11 +22,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadLeads() {
     try {
+        console.log('Loading leads...');
         const response = await fetch('/api/admin/leads');
+        console.log('Response status:', response.status);
+        
         if (response.ok) {
             const data = await response.json();
+            console.log('Received data:', data);
+            
             if (data.success) {
                 allLeads = data.leads || [];
+                console.log('All leads:', allLeads);
                 filteredLeads = [...allLeads];
                 updateStats();
                 renderLeadsTable();
@@ -65,13 +71,13 @@ function filterLeads() {
         const matchesSearch = !searchTerm || 
             lead.name.toLowerCase().includes(searchTerm) ||
             lead.email.toLowerCase().includes(searchTerm) ||
-            lead.address.toLowerCase().includes(searchTerm);
+            (lead.address && lead.address.toLowerCase().includes(searchTerm));
         
         // Status filter
         const matchesStatus = !statusFilter || lead.status === statusFilter;
         
         // City filter
-        const matchesCity = !cityFilter || lead.city === cityFilter;
+        const matchesCity = !cityFilter || (lead.city && lead.city === cityFilter);
         
         // Date filter
         let matchesDate = true;
