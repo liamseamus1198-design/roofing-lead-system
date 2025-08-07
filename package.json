@@ -9,14 +9,20 @@
     "build": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["roofing", "leads", "storm-damage", "consultant"],
+  "keywords": [
+    "roofing",
+    "leads",
+    "storm-damage",
+    "consultant"
+  ],
   "author": "The Roof Consultant",
   "license": "MIT",
   "dependencies": {
+    "@vercel/kv": "^3.0.0",
     "express": "^4.18.2",
+    "express-session": "^1.17.3",
     "nodemailer": "^6.9.7",
-    "sqlite3": "^5.1.6",
-    "express-session": "^1.17.3"
+    "sqlite3": "^5.1.6"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
@@ -27,4 +33,4 @@
   "cacheDirectories": [
     "node_modules"
   ]
-} 
+}

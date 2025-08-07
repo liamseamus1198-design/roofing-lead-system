@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js",
+      "src": "server.kv.js",
       "use": "@vercel/node"
     },
     {
@@ -33,19 +33,19 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "/server.js"
+      "dest": "/server.kv.js"
     },
     {
       "src": "/admin",
-      "dest": "/server.js"
+      "dest": "/server.kv.js"
     },
     {
       "src": "/",
-      "dest": "/server.js"
+      "dest": "/server.kv.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/server.js"
+      "dest": "/server.kv.js"
     }
   ],
   "env": {
