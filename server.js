@@ -52,6 +52,14 @@ try {
                 email TEXT NOT NULL,
                 phone TEXT NOT NULL,
                 zip_code TEXT NOT NULL,
+                address TEXT,
+                city TEXT,
+                property_type TEXT,
+                roof_age TEXT,
+                insurance_company TEXT,
+                preferred_contact TEXT,
+                urgency_level TEXT,
+                notes TEXT,
                 message TEXT,
                 status TEXT DEFAULT 'new',
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -128,8 +136,15 @@ Additional Notes: ${notes || 'None'}
         // Save to database with error handling
         if (db) {
             db.run(
-                'INSERT INTO leads (name, email, phone, zip_code, message) VALUES (?, ?, ?, ?, ?)',
-                [name, email, phone, zip, message],
+                `INSERT INTO leads (
+                    name, email, phone, zip_code, address, city, property_type, 
+                    roof_age, insurance_company, preferred_contact, urgency_level, notes, message
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [
+                    name, email, phone, zip, address || null, city || null, property_type || null,
+                    roof_age || null, insurance_company || null, preferred_contact || null, 
+                    urgency_level || null, notes || null, message
+                ],
                 function(err) {
                     if (err) {
                         console.log('⚠️ Database save failed:', err.message);

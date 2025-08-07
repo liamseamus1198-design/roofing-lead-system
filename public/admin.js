@@ -22,12 +22,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadLeads() {
     try {
-        const response = await fetch('/api/leads');
+        const response = await fetch('/api/admin/leads');
         if (response.ok) {
-            allLeads = await response.json();
-            filteredLeads = [...allLeads];
-            updateStats();
-            renderLeadsTable();
+            const data = await response.json();
+            if (data.success) {
+                allLeads = data.leads || [];
+                filteredLeads = [...allLeads];
+                updateStats();
+                renderLeadsTable();
+            } else {
+                throw new Error(data.message || 'Failed to load leads');
+            }
         } else {
             throw new Error('Failed to load leads');
         }
