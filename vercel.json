@@ -20,6 +20,10 @@
       "dest": "/public/script.js"
     },
     {
+      "src": "/admin.js",
+      "dest": "/public/admin.js"
+    },
+    {
       "src": "/images/(.*)",
       "dest": "/public/images/$1"
     },
