@@ -49,10 +49,13 @@ async function loadLeads() {
 }
 
 function updateStats() {
+    console.log('Updating stats with leads:', allLeads);
     const today = new Date().toDateString();
     const newToday = allLeads.filter(lead => new Date(lead.created_at).toDateString() === today).length;
     const pendingLeads = allLeads.filter(lead => ['new', 'contacted'].includes(lead.status)).length;
     const highUrgency = allLeads.filter(lead => lead.urgency_level && lead.urgency_level.includes('High')).length;
+    
+    console.log('Stats calculated:', { total: allLeads.length, newToday, pendingLeads, highUrgency });
     
     document.getElementById('totalLeads').textContent = allLeads.length;
     document.getElementById('newToday').textContent = newToday;
@@ -108,10 +111,13 @@ function filterLeads() {
 }
 
 function renderLeadsTable() {
+    console.log('Rendering leads table with:', filteredLeads);
     const tbody = document.getElementById('leadsTableBody');
     const startIndex = (currentPage - 1) * leadsPerPage;
     const endIndex = startIndex + leadsPerPage;
     const pageLeads = filteredLeads.slice(startIndex, endIndex);
+    
+    console.log('Page leads to render:', pageLeads);
     
     tbody.innerHTML = '';
     
