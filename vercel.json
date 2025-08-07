@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.bulletproof.js",
+      "src": "server.email.js",
       "use": "@vercel/node"
     },
     {
@@ -37,19 +37,19 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "/server.bulletproof.js"
+      "dest": "/server.email.js"
     },
     {
       "src": "/admin",
-      "dest": "/server.bulletproof.js"
+      "dest": "/server.email.js"
     },
     {
       "src": "/",
-      "dest": "/server.bulletproof.js"
+      "dest": "/server.email.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/server.bulletproof.js"
+      "dest": "/server.email.js"
     }
   ],
   "env": {

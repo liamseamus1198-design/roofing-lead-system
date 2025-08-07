@@ -2,10 +2,10 @@
   "name": "roofing-lead-system",
   "version": "1.0.0",
   "description": "Professional storm damage assessment lead generation system",
-  "main": "server.bulletproof.js",
+  "main": "server.email.js",
   "scripts": {
-    "start": "node server.bulletproof.js",
-    "dev": "nodemon server.bulletproof.js",
+    "start": "node server.email.js",
+    "dev": "nodemon server.email.js",
     "build": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

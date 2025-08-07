@@ -450,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show loading state
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
             }
             
             // Hide any existing messages
@@ -460,11 +460,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(form);
             const data = {
                 name: formData.get('name'),
-                phone: formData.get('phone'),
                 email: formData.get('email'),
+                phone: formData.get('phone'),
                 zip: formData.get('zip'),
                 address: formData.get('address'),
-                message: formData.get('message')
+                city: formData.get('city'),
+                property_type: formData.get('property_type'),
+                roof_age: formData.get('roof_age'),
+                insurance_company: formData.get('insurance_company'),
+                preferred_contact: formData.get('preferred_contact'),
+                urgency_level: formData.get('urgency_level'),
+                notes: formData.get('notes')
             };
 
             try {
@@ -496,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Reset button state
                 if (submitBtn) {
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Get Free Inspection';
+                    submitBtn.innerHTML = '<i class="fas fa-calendar-check mr-2"></i>Schedule My Free Assessment';
                 }
             }
         });
