@@ -78,6 +78,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
+// Root route handler
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Enhanced lead submission with comprehensive error handling
 app.post('/api/leads', async (req, res) => {
     try {
