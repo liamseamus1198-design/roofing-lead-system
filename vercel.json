@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.email.js",
+      "src": "server.final.js",
       "use": "@vercel/node"
     },
     {
@@ -41,19 +41,19 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "/server.email.js"
+      "dest": "/server.final.js"
     },
     {
       "src": "/admin",
-      "dest": "/server.email.js"
+      "dest": "/server.final.js"
     },
     {
       "src": "/",
-      "dest": "/server.email.js"
+      "dest": "/server.final.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/server.email.js"
+      "dest": "/server.final.js"
     }
   ],
   "env": {

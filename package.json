@@ -2,10 +2,10 @@
   "name": "roofing-lead-system",
   "version": "1.0.0",
   "description": "Professional storm damage assessment lead generation system",
-  "main": "server.email.js",
+  "main": "server.final.js",
   "scripts": {
-    "start": "node server.email.js",
-    "dev": "nodemon server.email.js",
+    "start": "node server.final.js",
+    "dev": "nodemon server.final.js",
     "build": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

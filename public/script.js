@@ -444,9 +444,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if (form) {
-        form.addEventListener('submit', function(e) {
-            // Don't prevent default - let Formspree handle it
-            // Just show loading state briefly
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
             
             // Show loading state
             if (submitBtn) {
@@ -458,22 +457,54 @@ document.addEventListener('DOMContentLoaded', function() {
             if (successMessage) successMessage.style.display = 'none';
             if (errorMessage) errorMessage.style.display = 'none';
 
-            // Show success message immediately
-            if (successMessage) {
-                successMessage.style.display = 'block';
-                successMessage.scrollIntoView({ behavior: 'smooth' });
-            }
-            
-            // Reset form
-            form.reset();
-            
-            // Reset button after a short delay
-            setTimeout(() => {
+            const formData = new FormData(form);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                zip: formData.get('zip'),
+                address: formData.get('address'),
+                city: formData.get('city'),
+                property_type: formData.get('property_type'),
+                roof_age: formData.get('roof_age'),
+                insurance_company: formData.get('insurance_company'),
+                preferred_contact: formData.get('preferred_contact'),
+                urgency_level: formData.get('urgency_level'),
+                notes: formData.get('notes')
+            };
+
+            try {
+                const response = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    // Show success message
+                    if (successMessage) {
+                        successMessage.style.display = 'block';
+                        successMessage.scrollIntoView({ behavior: 'smooth' });
+                    }
+                    form.reset();
+                } else {
+                    throw new Error('Submission failed');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                if (errorMessage) {
+                    errorMessage.style.display = 'block';
+                    errorMessage.scrollIntoView({ behavior: 'smooth' });
+                }
+            } finally {
+                // Reset button state
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = '<i class="fas fa-calendar-check mr-2"></i>Schedule My Free Assessment';
                 }
-            }, 2000);
+            }
         });
     }
 
