@@ -55,7 +55,7 @@ function showStormMap(type) {
     `;
     
     if (type === 'coverage') {
-        // Enhanced 4-MAP LAYOUT with better responsive design
+        // Enhanced 4-MAP LAYOUT with proper image sizing
         modal.innerHTML = `
             <div style="
                 background: white;
@@ -101,10 +101,10 @@ function showStormMap(type) {
                     padding: 25px;
                     background: #f8f9fa;
                 ">
-                    <!-- Enhanced 4-MAP GRID with better spacing -->
+                    <!-- Enhanced 4-MAP GRID with proper image sizing -->
                     <div style="
                         display: grid;
-                        grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+                        grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
                         gap: 25px;
                         margin-bottom: 25px;
                     ">
@@ -115,17 +115,28 @@ function showStormMap(type) {
                             border-radius: 12px;
                             padding: 20px;
                             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                            transition: transform 0.3s ease;
-                        " onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                        ">
                             <h4 style="margin: 0 0 20px 0; text-align: center; font-size: 18px; font-weight: bold; color: #333;">
                                 Hail Damage Map of Vero Lake Estates & West Corridor
                             </h4>
-                            <div style="position: relative; overflow: hidden; border-radius: 8px;">
+                            <div style="
+                                background: #f8f9fa;
+                                border-radius: 8px;
+                                padding: 15px;
+                                margin-bottom: 15px;
+                                text-align: center;
+                            ">
                                 <img src="/images/storm-maps/storm-map-1.jpg" alt="Vero Lake Estates" 
-                                     style="width: 100%; height: auto; display: block; transition: transform 0.3s ease;"
-                                     onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                     style="
+                                         max-width: 100%;
+                                         height: auto;
+                                         border-radius: 8px;
+                                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                                         display: block;
+                                         margin: 0 auto;
+                                     ">
                             </div>
-                            <div style="margin-top: 15px; text-align: center; font-size: 14px; color: #666;">
+                            <div style="text-align: center; font-size: 14px; color: #666;">
                                 <div style="background: #e3f2fd; padding: 8px; border-radius: 6px; margin: 5px 0;">
                                     <p style="margin: 2px 0;"><strong>Hail:</strong> 0.5-1.75"</p>
                                 </div>
@@ -145,17 +156,28 @@ function showStormMap(type) {
                             border-radius: 12px;
                             padding: 20px;
                             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                            transition: transform 0.3s ease;
-                        " onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                        ">
                             <h4 style="margin: 0 0 20px 0; text-align: center; font-size: 18px; font-weight: bold; color: #333;">
                                 Hail Detection of Melbourne and Satellite Beach
                             </h4>
-                            <div style="position: relative; overflow: hidden; border-radius: 8px;">
+                            <div style="
+                                background: #f8f9fa;
+                                border-radius: 8px;
+                                padding: 15px;
+                                margin-bottom: 15px;
+                                text-align: center;
+                            ">
                                 <img src="/images/storm-maps/storm-map-2.jpg" alt="Melbourne" 
-                                     style="width: 100%; height: auto; display: block; transition: transform 0.3s ease;"
-                                     onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                     style="
+                                         max-width: 100%;
+                                         height: auto;
+                                         border-radius: 8px;
+                                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                                         display: block;
+                                         margin: 0 auto;
+                                     ">
                             </div>
-                            <div style="margin-top: 15px; text-align: center; font-size: 14px; color: #666;">
+                            <div style="text-align: center; font-size: 14px; color: #666;">
                                 <div style="background: #e3f2fd; padding: 8px; border-radius: 6px; margin: 5px 0;">
                                     <p style="margin: 2px 0;"><strong>Hail:</strong> 0.5-1.75"</p>
                                 </div>
@@ -175,17 +197,28 @@ function showStormMap(type) {
                             border-radius: 12px;
                             padding: 20px;
                             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                            transition: transform 0.3s ease;
-                        " onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                        ">
                             <h4 style="margin: 0 0 20px 0; text-align: center; font-size: 18px; font-weight: bold; color: #333;">
                                 Hail Detection of Palm Bay
                             </h4>
-                            <div style="position: relative; overflow: hidden; border-radius: 8px;">
+                            <div style="
+                                background: #f8f9fa;
+                                border-radius: 8px;
+                                padding: 15px;
+                                margin-bottom: 15px;
+                                text-align: center;
+                            ">
                                 <img src="/images/storm-maps/storm-map-3.jpg" alt="Palm Bay" 
-                                     style="width: 100%; height: auto; display: block; transition: transform 0.3s ease;"
-                                     onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                     style="
+                                         max-width: 100%;
+                                         height: auto;
+                                         border-radius: 8px;
+                                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                                         display: block;
+                                         margin: 0 auto;
+                                     ">
                             </div>
-                            <div style="margin-top: 15px; text-align: center; font-size: 14px; color: #666;">
+                            <div style="text-align: center; font-size: 14px; color: #666;">
                                 <div style="background: #e3f2fd; padding: 8px; border-radius: 6px; margin: 5px 0;">
                                     <p style="margin: 2px 0;"><strong>Hail:</strong> 0.5-1.75"</p>
                                 </div>
@@ -205,17 +238,28 @@ function showStormMap(type) {
                             border-radius: 12px;
                             padding: 20px;
                             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                            transition: transform 0.3s ease;
-                        " onmouseover="this.style.transform='translateY(-5px)'" onmouseout="this.style.transform='translateY(0)'">
+                        ">
                             <h4 style="margin: 0 0 20px 0; text-align: center; font-size: 18px; font-weight: bold; color: #333;">
                                 Storm/Hail Damage Coverage of Counties and Cities
                             </h4>
-                            <div style="position: relative; overflow: hidden; border-radius: 8px;">
+                            <div style="
+                                background: #f8f9fa;
+                                border-radius: 8px;
+                                padding: 15px;
+                                margin-bottom: 15px;
+                                text-align: center;
+                            ">
                                 <img src="/images/storm-maps/storm-map-4.jpg" alt="Overall Coverage" 
-                                     style="width: 100%; height: auto; display: block; transition: transform 0.3s ease;"
-                                     onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                     style="
+                                         max-width: 100%;
+                                         height: auto;
+                                         border-radius: 8px;
+                                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                                         display: block;
+                                         margin: 0 auto;
+                                     ">
                             </div>
-                            <div style="margin-top: 15px; text-align: center; font-size: 14px; color: #666;">
+                            <div style="text-align: center; font-size: 14px; color: #666;">
                                 <div style="background: #e3f2fd; padding: 8px; border-radius: 6px; margin: 5px 0;">
                                     <p style="margin: 2px 0;"><strong>Coverage:</strong> Complete system</p>
                                 </div>
@@ -258,7 +302,7 @@ function showStormMap(type) {
             </div>
         `;
     } else {
-        // Enhanced single storm map display
+        // Enhanced single storm map display with proper sizing
         modal.innerHTML = `
             <div style="
                 background: white;
@@ -297,7 +341,7 @@ function showStormMap(type) {
                     " onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">×</button>
                 </div>
 
-                <!-- Enhanced Content -->
+                <!-- Enhanced Content with proper image sizing -->
                 <div style="
                     flex: 1;
                     display: flex;
@@ -305,17 +349,32 @@ function showStormMap(type) {
                     justify-content: center;
                     padding: 25px;
                     background: #f8f9fa;
+                    overflow: auto;
                 ">
                     <div style="
-                        position: relative;
+                        background: white;
+                        border-radius: 12px;
+                        padding: 20px;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
                         max-width: 100%;
                         max-height: 100%;
-                        border-radius: 12px;
-                        overflow: hidden;
-                        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                        text-align: center;
                     ">
                         <img src="${map.image}" alt="${map.title}" 
-                             style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;">
+                             style="
+                                 max-width: 100%;
+                                 height: auto;
+                                 border-radius: 8px;
+                                 box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                                 display: block;
+                                 margin: 0 auto;
+                             ">
+                        <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                            <h4 style="margin: 0 0 10px 0; color: #333; font-size: 18px;">Map Details</h4>
+                            <div style="text-align: left; font-size: 14px; color: #666; line-height: 1.6;">
+                                ${map.data.split('\n').map(line => `<p style="margin: 5px 0;"><strong>${line.split(':')[0]}:</strong> ${line.split(':')[1] || ''}</p>`).join('')}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
