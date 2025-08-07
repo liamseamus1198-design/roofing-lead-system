@@ -401,6 +401,15 @@ function closeStormMap() {
     }
 }
 
+// Close Success Modal
+function closeModal() {
+    const modal = document.getElementById('successModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
 // Form submission handling
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('leadForm');
