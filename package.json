@@ -2,10 +2,10 @@
   "name": "roofing-lead-system",
   "version": "1.0.0",
   "description": "Professional storm damage assessment lead generation system",
-  "main": "server.upstash.js",
+  "main": "server.simple.js",
   "scripts": {
-    "start": "node server.upstash.js",
-    "dev": "nodemon server.upstash.js",
+    "start": "node server.simple.js",
+    "dev": "nodemon server.simple.js",
     "build": "npm install",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.upstash.js",
+      "src": "server.simple.js",
       "use": "@vercel/node"
     },
     {
@@ -33,19 +33,19 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "/server.upstash.js"
+      "dest": "/server.simple.js"
     },
     {
       "src": "/admin",
-      "dest": "/server.upstash.js"
+      "dest": "/server.simple.js"
     },
     {
       "src": "/",
-      "dest": "/server.upstash.js"
+      "dest": "/server.simple.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/server.upstash.js"
+      "dest": "/server.simple.js"
     }
   ],
   "env": {
