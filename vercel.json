@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.hybrid.js",
+      "src": "server.bulletproof.js",
       "use": "@vercel/node"
     },
     {
@@ -37,19 +37,19 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "/server.hybrid.js"
+      "dest": "/server.bulletproof.js"
     },
     {
       "src": "/admin",
-      "dest": "/server.hybrid.js"
+      "dest": "/server.bulletproof.js"
     },
     {
       "src": "/",
-      "dest": "/server.hybrid.js"
+      "dest": "/server.bulletproof.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/server.hybrid.js"
+      "dest": "/server.bulletproof.js"
     }
   ],
   "env": {
