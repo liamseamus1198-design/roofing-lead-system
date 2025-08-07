@@ -284,6 +284,35 @@ app.get('/health', (req, res) => {
     });
 });
 
+// Test endpoint to check database and leads
+app.get('/api/test-leads', (req, res) => {
+    if (!db) {
+        return res.json({
+            success: false,
+            message: 'Database not connected',
+            db: null
+        });
+    }
+
+    db.all('SELECT * FROM leads ORDER BY created_at DESC', [], (err, rows) => {
+        if (err) {
+            res.json({
+                success: false,
+                message: 'Database error',
+                error: err.message,
+                rows: null
+            });
+        } else {
+            res.json({
+                success: true,
+                message: 'Database query successful',
+                count: rows.length,
+                leads: rows
+            });
+        }
+    });
+});
+
 // Enhanced error handling for all routes
 app.use((err, req, res, next) => {
     console.log('❌ Server error:', err.message);
