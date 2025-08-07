@@ -18,6 +18,7 @@
   "author": "The Roof Consultant",
   "license": "MIT",
   "dependencies": {
+    "@upstash/redis": "^1.35.3",
     "@vercel/kv": "^3.0.0",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
