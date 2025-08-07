@@ -13,15 +13,28 @@ const EMAIL_PASS = process.env.EMAIL_PASS || 'fallback-password';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@thestormprofessional.com';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'your-secret-key-here';
 
-// Initialize Upstash Redis
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN,
-});
+// Initialize Upstash Redis (with fallback)
+let redis = null;
+let useRedis = false;
 
-// Add debugging for Redis connection
-console.log('Redis URL configured:', !!process.env.UPSTASH_REDIS_REST_URL);
-console.log('Redis Token configured:', !!process.env.UPSTASH_REDIS_REST_TOKEN);
+try {
+    if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+        redis = new Redis({
+            url: process.env.UPSTASH_REDIS_REST_URL,
+            token: process.env.UPSTASH_REDIS_REST_TOKEN,
+        });
+        useRedis = true;
+        console.log('✅ Redis configured successfully');
+    } else {
+        console.log('⚠️ Redis not configured, using in-memory storage');
+    }
+} catch (error) {
+    console.log('⚠️ Redis initialization failed:', error.message);
+}
+
+// Fallback in-memory storage
+let leads = [];
+let leadCounter = 1;
 
 // Enhanced email transporter setup
 let transporter;
@@ -62,7 +75,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Enhanced lead submission with Upstash Redis
+// Enhanced lead submission with hybrid storage
 app.post('/api/leads', async (req, res) => {
     try {
         const { 
@@ -90,7 +103,7 @@ app.post('/api/leads', async (req, res) => {
 
         // Create lead object
         const lead = {
-            id: Date.now().toString(), // Simple ID generation
+            id: useRedis ? Date.now().toString() : leadCounter++,
             name,
             email,
             phone,
@@ -107,17 +120,20 @@ app.post('/api/leads', async (req, res) => {
             created_at: new Date().toISOString()
         };
 
-        // Save to Upstash Redis
-        try {
-            await redis.set(`lead:${lead.id}`, JSON.stringify(lead));
-            await redis.zadd('leads:timeline', { score: Date.now(), member: lead.id });
-            console.log('✅ Lead saved to Redis, ID:', lead.id);
-        } catch (redisError) {
-            console.log('⚠️ Redis save failed:', redisError.message);
-            return res.status(500).json({ 
-                success: false, 
-                message: 'Database error. Please try again.' 
-            });
+        // Save to storage
+        if (useRedis && redis) {
+            try {
+                await redis.set(`lead:${lead.id}`, JSON.stringify(lead));
+                await redis.zadd('leads:timeline', { score: Date.now(), member: lead.id });
+                console.log('✅ Lead saved to Redis, ID:', lead.id);
+            } catch (redisError) {
+                console.log('⚠️ Redis save failed, falling back to memory:', redisError.message);
+                leads.unshift(lead);
+                console.log('✅ Lead saved to memory, ID:', lead.id);
+            }
+        } else {
+            leads.unshift(lead);
+            console.log('✅ Lead saved to memory, ID:', lead.id);
         }
 
         // Send email with enhanced error handling
@@ -181,28 +197,33 @@ app.get('/admin', (req, res) => {
     }
 });
 
-// Enhanced admin API with Upstash Redis
+// Enhanced admin API with hybrid storage
 app.get('/api/admin/leads', async (req, res) => {
     try {
-        // Get all lead IDs from timeline
-        const leadIds = await redis.zrange('leads:timeline', 0, -1, { rev: true });
+        let allLeads = [];
         
-        if (!leadIds || leadIds.length === 0) {
-            return res.json({ success: true, leads: [] });
-        }
-
-        // Get all leads
-        const leads = [];
-        for (const id of leadIds) {
-            const leadData = await redis.get(`lead:${id}`);
-            if (leadData) {
-                leads.push(JSON.parse(leadData));
+        if (useRedis && redis) {
+            try {
+                const leadIds = await redis.zrange('leads:timeline', 0, -1, { rev: true });
+                if (leadIds && leadIds.length > 0) {
+                    for (const id of leadIds) {
+                        const leadData = await redis.get(`lead:${id}`);
+                        if (leadData) {
+                            allLeads.push(JSON.parse(leadData));
+                        }
+                    }
+                }
+            } catch (redisError) {
+                console.log('⚠️ Redis query failed, using memory:', redisError.message);
+                allLeads = [...leads];
             }
+        } else {
+            allLeads = [...leads];
         }
 
-        res.json({ success: true, leads });
+        res.json({ success: true, leads: allLeads });
     } catch (error) {
-        console.log('⚠️ Redis query failed:', error.message);
+        console.log('⚠️ Query failed:', error.message);
         res.status(500).json({ 
             success: false, 
             message: 'Database error' 
@@ -210,23 +231,34 @@ app.get('/api/admin/leads', async (req, res) => {
     }
 });
 
-// Enhanced status update with Upstash Redis
+// Enhanced status update with hybrid storage
 app.put('/api/admin/leads/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const { status } = req.body;
 
-        const leadData = await redis.get(`lead:${id}`);
-        if (!leadData) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'Lead not found' 
-            });
-        }
+        if (useRedis && redis) {
+            const leadData = await redis.get(`lead:${id}`);
+            if (!leadData) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Lead not found' 
+                });
+            }
 
-        const lead = JSON.parse(leadData);
-        lead.status = status;
-        await redis.set(`lead:${id}`, JSON.stringify(lead));
+            const lead = JSON.parse(leadData);
+            lead.status = status;
+            await redis.set(`lead:${id}`, JSON.stringify(lead));
+        } else {
+            const lead = leads.find(l => l.id == id);
+            if (!lead) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Lead not found' 
+                });
+            }
+            lead.status = status;
+        }
 
         res.json({ 
             success: true, 
@@ -241,38 +273,44 @@ app.put('/api/admin/leads/:id', async (req, res) => {
     }
 });
 
-// Test endpoint to check Redis and leads
+// Test endpoint to check storage and leads
 app.get('/api/test-leads', async (req, res) => {
     try {
-        const leadIds = await redis.zrange('leads:timeline', 0, -1, { rev: true });
+        let allLeads = [];
+        let storageType = 'unknown';
         
-        if (!leadIds || leadIds.length === 0) {
-            return res.json({
-                success: true,
-                message: 'Redis connected, no leads found',
-                count: 0,
-                leads: []
-            });
-        }
-
-        const leads = [];
-        for (const id of leadIds) {
-            const leadData = await redis.get(`lead:${id}`);
-            if (leadData) {
-                leads.push(JSON.parse(leadData));
+        if (useRedis && redis) {
+            try {
+                const leadIds = await redis.zrange('leads:timeline', 0, -1, { rev: true });
+                if (leadIds && leadIds.length > 0) {
+                    for (const id of leadIds) {
+                        const leadData = await redis.get(`lead:${id}`);
+                        if (leadData) {
+                            allLeads.push(JSON.parse(leadData));
+                        }
+                    }
+                }
+                storageType = 'redis';
+            } catch (redisError) {
+                allLeads = [...leads];
+                storageType = 'memory (redis failed)';
             }
+        } else {
+            allLeads = [...leads];
+            storageType = 'memory';
         }
 
         res.json({
             success: true,
-            message: 'Redis query successful',
-            count: leads.length,
-            leads: leads
+            message: `${storageType} query successful`,
+            count: allLeads.length,
+            leads: allLeads,
+            storageType: storageType
         });
     } catch (error) {
         res.json({
             success: false,
-            message: 'Redis error',
+            message: 'Storage error',
             error: error.message,
             leads: null
         });
@@ -286,7 +324,9 @@ app.get('/health', (req, res) => {
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || 'development',
         emailConfigured: EMAIL_USER !== 'fallback@email.com',
-        redisConfigured: !!process.env.UPSTASH_REDIS_REST_URL,
+        redisConfigured: useRedis,
+        storageType: useRedis ? 'redis' : 'memory',
+        leadCount: leads.length,
         port: PORT
     });
 });
@@ -307,6 +347,7 @@ app.listen(PORT, () => {
     console.log('🔑 Email Pass:', EMAIL_PASS !== 'fallback-password' ? '✅ Set' : '❌ Not Set');
     console.log('👤 Admin Email:', ADMIN_EMAIL !== 'admin@thestormprofessional.com' ? '✅ Set' : '❌ Not Set');
     console.log('🔐 Session Secret:', SESSION_SECRET !== 'your-secret-key-here' ? '✅ Set' : '❌ Not Set');
+    console.log('💾 Redis Configured:', useRedis ? '✅ Yes' : '❌ No');
     
     if (transporter) {
         console.log('✅ Email transporter created successfully');
@@ -316,6 +357,6 @@ app.listen(PORT, () => {
     console.log('📍 Server URL: http://localhost:' + PORT);
     console.log('🔧 Environment:', process.env.NODE_ENV || 'development');
     console.log('📧 Email Status:', EMAIL_USER !== 'fallback@email.com' ? 'Configured' : 'Using Fallback');
-    console.log('💾 Redis Status:', process.env.UPSTASH_REDIS_REST_URL ? 'Connected' : 'Not Connected');
+    console.log('💾 Storage Type:', useRedis ? 'Redis' : 'In-Memory');
     console.log('✅ Ready to capture leads!');
 }); 

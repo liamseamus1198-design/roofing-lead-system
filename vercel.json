@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.simple.js",
+      "src": "server.hybrid.js",
       "use": "@vercel/node"
     },
     {
@@ -33,19 +33,19 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "/server.simple.js"
+      "dest": "/server.hybrid.js"
     },
     {
       "src": "/admin",
-      "dest": "/server.simple.js"
+      "dest": "/server.hybrid.js"
     },
     {
       "src": "/",
-      "dest": "/server.simple.js"
+      "dest": "/server.hybrid.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/server.simple.js"
+      "dest": "/server.hybrid.js"
     }
   ],
   "env": {
