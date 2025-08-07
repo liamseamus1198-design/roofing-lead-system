@@ -24,6 +24,10 @@
       "dest": "/public/admin.js"
     },
     {
+      "src": "/thank-you.html",
+      "dest": "/public/thank-you.html"
+    },
+    {
       "src": "/images/(.*)",
       "dest": "/public/images/$1"
     },
