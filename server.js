@@ -86,24 +86,57 @@ app.get('/', (req, res) => {
 // Enhanced lead submission with comprehensive error handling
 app.post('/api/leads', async (req, res) => {
     try {
-        const { name, email, phone, zip_code, message } = req.body;
+        const { 
+            name, 
+            email, 
+            phone, 
+            zip, 
+            address, 
+            city, 
+            property_type, 
+            roof_age, 
+            insurance_company, 
+            preferred_contact, 
+            urgency_level, 
+            notes 
+        } = req.body;
         
         // Validation
-        if (!name || !email || !phone || !zip_code) {
+        if (!name || !email || !phone || !zip) {
             return res.status(400).json({ 
                 success: false, 
                 message: 'Missing required fields' 
             });
         }
 
+        // Create message from form data
+        const message = `
+Name: ${name}
+Email: ${email}
+Phone: ${phone}
+Zip: ${zip}
+Address: ${address || 'Not provided'}
+City: ${city || 'Not provided'}
+Property Type: ${property_type || 'Not provided'}
+Roof Age: ${roof_age || 'Not provided'}
+Insurance Company: ${insurance_company || 'Not provided'}
+Preferred Contact: ${preferred_contact || 'Phone'}
+Urgency Level: ${urgency_level || 'Not specified'}
+Additional Notes: ${notes || 'None'}
+        `.trim();
+
         // Save to database with error handling
         if (db) {
             db.run(
                 'INSERT INTO leads (name, email, phone, zip_code, message) VALUES (?, ?, ?, ?, ?)',
-                [name, email, phone, zip_code, message || ''],
+                [name, email, phone, zip, message],
                 function(err) {
                     if (err) {
                         console.log('⚠️ Database save failed:', err.message);
+                        return res.status(500).json({ 
+                            success: false, 
+                            message: 'Database error. Please try again.' 
+                        });
                     } else {
                         console.log('✅ Lead saved to database, ID:', this.lastID);
                     }
@@ -124,10 +157,17 @@ app.post('/api/leads', async (req, res) => {
                     <p><strong>Name:</strong> ${name}</p>
                     <p><strong>Email:</strong> ${email}</p>
                     <p><strong>Phone:</strong> ${phone}</p>
-                    <p><strong>Zip Code:</strong> ${zip_code}</p>
-                    <p><strong>Message:</strong> ${message || 'No additional message'}</p>
+                    <p><strong>Zip Code:</strong> ${zip}</p>
+                    <p><strong>Address:</strong> ${address || 'Not provided'}</p>
+                    <p><strong>City:</strong> ${city || 'Not provided'}</p>
+                    <p><strong>Property Type:</strong> ${property_type || 'Not provided'}</p>
+                    <p><strong>Roof Age:</strong> ${roof_age || 'Not provided'}</p>
+                    <p><strong>Insurance Company:</strong> ${insurance_company || 'Not provided'}</p>
+                    <p><strong>Preferred Contact:</strong> ${preferred_contact || 'Phone'}</p>
+                    <p><strong>Urgency Level:</strong> ${urgency_level || 'Not specified'}</p>
+                    <p><strong>Additional Notes:</strong> ${notes || 'None'}</p>
                     <hr>
-                    <p><em>Lead submitted from The Roof Consultant website</em></p>
+                    <p><em>Lead submitted from The Storm Professional website</em></p>
                 `
             };
 
