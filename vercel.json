@@ -1,8 +1,10 @@
 {
   "version": 2,
+  "name": "thestormprofessional",
+  "alias": ["thestormprofessional.com", "www.thestormprofessional.com"],
   "builds": [
     {
-      "src": "server.final.js",
+      "src": "server.js",
       "use": "@vercel/node"
     },
     {
@@ -41,22 +43,23 @@
     },
     {
       "src": "/api/(.*)",
-      "dest": "/server.final.js"
+      "dest": "/server.js"
     },
     {
       "src": "/admin",
-      "dest": "/server.final.js"
+      "dest": "/server.js"
     },
     {
       "src": "/",
-      "dest": "/server.final.js"
+      "dest": "/server.js"
     },
     {
       "src": "/(.*)",
-      "dest": "/server.final.js"
+      "dest": "/server.js"
     }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "ADMIN_EMAIL": "Liamseamus1198@gmail.com"
   }
 } 

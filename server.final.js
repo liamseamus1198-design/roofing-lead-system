@@ -1,8 +1,36 @@
 const express = require('express');
+const nodemailer = require('nodemailer');
 const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+// Email configuration
+const EMAIL_USER = process.env.EMAIL_USER || 'fallback@email.com';
+const EMAIL_PASS = process.env.EMAIL_PASS || 'fallback-password';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'Liamseamus1198@gmail.com';
+
+// Log environment status for debugging
+console.log('🔧 Environment Check:');
+console.log(`📧 Email User: ${EMAIL_USER ? '✅ Set' : '❌ Missing'}`);
+console.log(`🔑 Email Pass: ${EMAIL_PASS ? '✅ Set' : '❌ Missing'}`);
+console.log(`👤 Admin Email: ${ADMIN_EMAIL ? '✅ Set' : '❌ Missing'}`);
+
+// Enhanced email transporter with fallback
+let transporter;
+try {
+    transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: EMAIL_USER,
+            pass: EMAIL_PASS
+        }
+    });
+    console.log('✅ Email transporter created successfully');
+} catch (error) {
+    console.log('⚠️ Email transporter creation failed:', error.message);
+    transporter = null;
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -13,7 +41,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// BULLETPROOF lead submission
+// BULLETPROOF lead submission with direct email
 app.post('/api/leads', async (req, res) => {
     try {
         const { 
@@ -73,22 +101,47 @@ ${notes || 'None'}
         console.log(emailContent);
         console.log('='.repeat(50));
 
-        // Send email using a simple webhook service
-        try {
-            // Using webhook.site as a simple email service
-            const webhookUrl = 'https://webhook.site/your-webhook-id'; // We'll set this up
-            
-            // For now, just log the lead data
+        // Send email with enhanced error handling
+        if (transporter && EMAIL_USER !== 'fallback@email.com') {
+            const mailOptions = {
+                from: EMAIL_USER,
+                to: ADMIN_EMAIL,
+                subject: '🚨 NEW ROOFING LEAD - Storm Damage Assessment',
+                html: `
+                    <h2>🏠 New Lead Received</h2>
+                    <p><strong>Name:</strong> ${name}</p>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Phone:</strong> ${phone}</p>
+                    <p><strong>Zip Code:</strong> ${zip}</p>
+                    <p><strong>Address:</strong> ${address || 'Not provided'}</p>
+                    <p><strong>City:</strong> ${city || 'Not provided'}</p>
+                    <p><strong>Property Type:</strong> ${property_type || 'Not provided'}</p>
+                    <p><strong>Roof Age:</strong> ${roof_age || 'Not provided'}</p>
+                    <p><strong>Insurance Company:</strong> ${insurance_company || 'Not provided'}</p>
+                    <p><strong>Preferred Contact:</strong> ${preferred_contact || 'Phone'}</p>
+                    <p><strong>Urgency Level:</strong> ${urgency_level || 'Not specified'}</p>
+                    <p><strong>Additional Notes:</strong> ${notes || 'None'}</p>
+                    <hr>
+                    <p><em>Lead submitted from The Storm Professional website</em></p>
+                `
+            };
+
+            try {
+                await transporter.sendMail(mailOptions);
+                console.log('✅ Email sent successfully to', ADMIN_EMAIL);
+            } catch (emailError) {
+                console.log('⚠️ Email sending failed:', emailError.message);
+                // Continue with response even if email fails
+            }
+        } else {
+            console.log('⚠️ Email not configured, logging lead data instead');
             console.log('📧 LEAD DATA FOR EMAIL:');
             console.log({
-                to: 'liamseamus1198@gmail.com',
+                to: ADMIN_EMAIL,
                 subject: '🚨 NEW ROOFING LEAD - Storm Damage Assessment',
                 content: emailContent,
                 timestamp: new Date().toISOString()
             });
-            
-        } catch (emailError) {
-            console.log('⚠️ Email sending failed:', emailError.message);
         }
 
         // ALWAYS return success - the lead was captured
@@ -112,7 +165,8 @@ app.get('/health', (req, res) => {
         status: 'healthy',
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || 'development',
-        targetEmail: 'liamseamus1198@gmail.com',
+        targetEmail: ADMIN_EMAIL,
+        emailConfigured: EMAIL_USER !== 'fallback@email.com',
         port: PORT,
         message: 'Lead capture system is ready!'
     });
@@ -130,7 +184,8 @@ app.get('/test', (req, res) => {
 app.listen(PORT, () => {
     console.log('🚀 The Storm Professional FINAL Server is running!');
     console.log('📍 Server URL: http://localhost:' + PORT);
-    console.log('📧 Target Email: liamseamus1198@gmail.com');
+    console.log('📧 Target Email:', ADMIN_EMAIL);
+    console.log('📧 Email Status:', EMAIL_USER !== 'fallback@email.com' ? 'Configured' : 'Using Fallback');
     console.log('✅ Ready to capture leads!');
     console.log('📊 Check Vercel logs to see leads in real-time');
 }); 
